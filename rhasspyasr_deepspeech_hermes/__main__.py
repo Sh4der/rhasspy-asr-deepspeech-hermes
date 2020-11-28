@@ -40,11 +40,8 @@ def get_args() -> argparse.Namespace:
     )
     parser.add_argument("--alphabet", help="Path to alphabet.txt file")
     parser.add_argument(
-        "--language-model", help="Path to read/write ARPA language model file"
-    )
-    parser.add_argument(
-        "--trie",
-        help="Path to the language model trie file created with native_client/generate_trie",
+        "--scorer", required=True,
+        help="Path to the external scorer file",
     )
     parser.add_argument(
         "--beam-width", type=int, default=500, help="Beam width for the CTC decoder"
@@ -127,14 +124,11 @@ def get_args() -> argparse.Namespace:
 def run_mqtt(args: argparse.Namespace):
     """Runs Hermes ASR MQTT service."""
     # Convert to Paths
-    args.model = Path(args.model)
+    if args.model:
+        args.model = Path(args.model)
 
-    if args.language_model:
-        args.language_model = Path(args.language_model)
-
-    if args.trie:
-        args.trie = Path(args.trie)
-
+    if args.scorer:
+        args.scorer = Path(args.scorer)
     if args.alphabet:
         args.alphabet = Path(args.alphabet)
 
@@ -147,8 +141,7 @@ def run_mqtt(args: argparse.Namespace):
     def make_transcriber():
         return DeepSpeechTranscriber(
             args.model,
-            args.language_model,
-            args.trie,
+            args.scorer,
             beam_width=args.beam_width,
             lm_alpha=args.lm_alpha,
             lm_beta=args.lm_beta,
@@ -159,8 +152,8 @@ def run_mqtt(args: argparse.Namespace):
     hermes = AsrHermesMqtt(
         client,
         transcriber_factory=make_transcriber,
-        language_model_path=args.language_model,
-        trie_path=args.trie,
+        model_path=args.model,
+        scorer_path=args.scorer,
         alphabet_path=args.alphabet,
         base_language_model_fst=args.base_language_model_fst,
         base_language_model_weight=args.base_language_model_weight,

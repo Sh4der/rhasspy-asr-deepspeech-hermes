@@ -56,9 +56,9 @@ class AsrHermesMqtt(HermesClient):
         self,
         client,
         transcriber_factory: typing.Callable[[], Transcriber],
-        language_model_path: typing.Optional[Path] = None,
+        model_path: typing.Optional[Path] = None,
         alphabet_path: typing.Optional[Path] = None,
-        trie_path: typing.Optional[Path] = None,
+        scorer_path: typing.Optional[Path] = None,
         no_overwrite_train: bool = False,
         base_language_model_fst: typing.Optional[Path] = None,
         base_language_model_weight: float = 0,
@@ -107,8 +107,8 @@ class AsrHermesMqtt(HermesClient):
         self.no_overwrite_train = no_overwrite_train
 
         # Files to write during training
-        self.language_model_path = language_model_path
-        self.trie_path = trie_path
+        self.path = model_path
+        self.scorer_path = scorer_path
         self.alphabet_path = alphabet_path
 
         # True if ASR system is enabled
@@ -392,8 +392,8 @@ class AsrHermesMqtt(HermesClient):
         try:
             if (
                 not self.no_overwrite_train
-                and self.language_model_path
-                and self.trie_path
+                and self.model_path
+                and self.scorer_path
                 and self.alphabet_path
             ):
                 _LOGGER.debug("Loading %s", train.graph_path)
@@ -404,8 +404,8 @@ class AsrHermesMqtt(HermesClient):
                 _LOGGER.debug("Starting training")
                 rhasspyasr_deepspeech.train(
                     graph,
-                    self.language_model_path,
-                    self.trie_path,
+                    self.model_path,
+                    self.scorer_path,
                     self.alphabet_path,
                     base_language_model_fst=self.base_language_model_fst,
                     base_language_model_weight=self.base_language_model_weight,
