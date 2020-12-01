@@ -107,7 +107,7 @@ class AsrHermesMqtt(HermesClient):
         self.no_overwrite_train = no_overwrite_train
 
         # Files to write during training
-        self.path = model_path
+        self.model_path = model_path
         self.scorer_path = scorer_path
         self.alphabet_path = alphabet_path
 
@@ -396,6 +396,7 @@ class AsrHermesMqtt(HermesClient):
                 and self.scorer_path
                 and self.alphabet_path
             ):
+                _LOGGER.debug("no overwrite: %s, model_path: %s, scorer_path: %s, alphabet: %s", self.no_overwrite_train, self.model_path, self.scorer_path, self.alphabet_path)
                 _LOGGER.debug("Loading %s", train.graph_path)
                 with gzip.GzipFile(train.graph_path, mode="rb") as graph_gzip:
                     graph = nx.readwrite.gpickle.read_gpickle(graph_gzip)
@@ -412,6 +413,7 @@ class AsrHermesMqtt(HermesClient):
                     mixed_language_model_fst=self.mixed_language_model_fst,
                 )
             else:
+                _LOGGER.debug("no overwrite: %s, model_path: %s, scorer_path: %s, alphabet: %s", self.no_overwrite_train, self.model_path, self.scorer_path, self.alphabet_path)
                 _LOGGER.warning("Not overwriting language model/trie")
 
             # Model will reload
